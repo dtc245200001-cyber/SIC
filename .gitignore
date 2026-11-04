@@ -1,0 +1,11 @@
+models/
+data/processed/
+outputs/*predictions.csv
+outputs/smoke/
+outputs/*.png
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+*.log
+.env
+*.key
