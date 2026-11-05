@@ -43,7 +43,7 @@ PHOBERT_TEST_PRED = os.path.join(ROOT_DIR, "outputs", "phobert_test_predictions.
 
 MAX_LEN = 128
 PHOBERT_MODEL_NAME = "vinai/phobert-base"
-PHOBERT_EPOCHS = 4
+PHOBERT_EPOCHS = 8
 PHOBERT_TRAIN_BS = 16
 PHOBERT_EVAL_BS = 32
 PHOBERT_LR = 2e-5
