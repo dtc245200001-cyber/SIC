@@ -118,6 +118,7 @@ print(f"Độ dài token: p50={int(np.median(lengths))} p95={int(np.percentile(l
 
 model = AutoModelForSequenceClassification.from_pretrained(
     PHOBERT_MODEL_NAME, num_labels=N_LABELS, id2label=id2label, label2id=label2id,
+    use_safetensors=True,
 )
 
 import inspect
