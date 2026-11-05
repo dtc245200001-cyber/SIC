@@ -11,6 +11,11 @@ TOXIC_IDS = [1, 2]
 N_LABELS = len(LABEL_NAMES)
 
 RAW_CSV = os.path.join(ROOT_DIR, "data", "raw", "comments.csv")
+# Dữ liệu đối chứng (counter-examples): câu có tên riêng chứa âm tiết nhạy cảm
+# (Ngu/Dốt/Khùng...) dùng trong ngữ cảnh trung tính/tích cực, gán CLEAN.
+# Mục đích: giảm lexical bias - model học "thấy từ X -> độc hại" mà không
+# xét ngữ cảnh. Chỉ thêm vào TRAIN, không thêm vào val/test (xem 01_process_data.py).
+COUNTER_EXAMPLES_CSV = os.path.join(ROOT_DIR, "data", "raw", "counter_examples.csv")
 TRAIN_CSV = os.path.join(ROOT_DIR, "data", "processed", "03_train.csv")
 VAL_CSV = os.path.join(ROOT_DIR, "data", "processed", "03_val.csv")
 TEST_CSV = os.path.join(ROOT_DIR, "data", "processed", "03_test.csv")
@@ -46,3 +51,7 @@ PHOBERT_LR = 2e-5
 COMPARE_CSV = os.path.join(ROOT_DIR, "outputs", "bang_so_sanh_mo_hinh.csv")
 COMPARE_CM = os.path.join(ROOT_DIR, "outputs", "confusion_matrix_test.png")
 ERROR_CSV = os.path.join(ROOT_DIR, "outputs", "phan_tich_loi.csv")
+
+# Web demo
+FEEDBACK_CSV = os.path.join(ROOT_DIR, "outputs", "feedback.csv")
+WEB_MAX_CHARS = 500

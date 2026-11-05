@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 
 from src.config import (
     SEED, LABEL_NAMES, ENCODING, RAW_CSV, TRAIN_CSV, VAL_CSV, TEST_CSV,
-    TEST_SIZE, VAL_SIZE,
+    TEST_SIZE, VAL_SIZE, COUNTER_EXAMPLES_CSV,
 )
 from src.preprocess import lam_sach, tach_tu
 
@@ -60,6 +60,29 @@ train = train.reset_index(drop=True)
 val = val.reset_index(drop=True)
 test = test.reset_index(drop=True)
 
+# Nối dữ liệu đối chứng CHỈ vào train (sau khi đã chia tập), để val/test vẫn
+# phản ánh đúng phân phối dữ liệu gốc ViHSD khi đánh giá, không bị pha trộn
+# dữ liệu tự tạo thêm.
+if os.path.exists(COUNTER_EXAMPLES_CSV):
+    print("Thêm dữ liệu đối chứng (counter-examples) vào train...")
+    ce = pd.read_csv(COUNTER_EXAMPLES_CSV, encoding=ENCODING)
+    ce = ce.rename(columns={'free_text': 'text', 'label_id': 'label'})
+    ce['text'] = ce['text'].astype(str)
+    ce['label'] = ce['label'].astype(int)
+    ce['text_clean'] = ce['text'].apply(lam_sach)
+    ce = ce[ce['text_clean'] != '']
+    ce['text_seg'] = ce['text_clean'].apply(tach_tu)
+    ce = ce[ce['text_seg'].str.len() > 0]
+    ce['text_key'] = ce['text'].apply(chuan_hoa_nhe)
+    n_ce = len(ce)
+    max_sid = train['sid'].max() if 'sid' in train.columns and len(train) else -1
+    ce = ce[['text', 'text_key', 'label', 'text_clean', 'text_seg']].reset_index(drop=True)
+    ce.insert(0, 'sid', range(max_sid + 1, max_sid + 1 + len(ce)))
+    train = pd.concat([train, ce], ignore_index=True)
+    print(f"Đã thêm {n_ce} mẫu đối chứng vào train (train: {len(train) - n_ce} -> {len(train)})")
+else:
+    print(f"Không tìm thấy {COUNTER_EXAMPLES_CSV}, bỏ qua bước thêm dữ liệu đối chứng.")
+
 os.makedirs(os.path.dirname(TRAIN_CSV), exist_ok=True)
 train.to_csv(TRAIN_CSV, index=False, encoding=ENCODING)
 val.to_csv(VAL_CSV, index=False, encoding=ENCODING)
@@ -69,6 +92,5 @@ print(f"Train: {len(train)}")
 print(f"Val: {len(val)}")
 print(f"Test: {len(test)}")
 print("Tỉ lệ nhãn (train/val/test):")
-print(pd.crosstab(df_sach['label'], "n").T.to_string())
 for ten, d in [("train", train), ("val", val), ("test", test)]:
     print(f"  {ten}: {d['label'].value_counts(normalize=True).sort_index().round(4).to_dict()}")
